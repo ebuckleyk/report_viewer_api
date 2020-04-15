@@ -1,0 +1,42 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.101
+    - name: Install dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+    - name: Test
+      run: dotnet test --no-restore --verbosity normal
+    - name: zip
+      uses: montudor/action-zip@v0.1.0
+      with:
+        args: zip -qq -r ./bundle.zip
+    - name: Deploy AWS Lambda function
+      uses: yvesgurcan/deploy-lambda-function@v0.0.5
+      with:
+        # Zip package of Lambda and dependencies
+        package: bundle.zip
+        # Name of Lambda function
+        function-name: report-viewer-test 
+        # AWS secret key
+        AWS_SECRET_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        # AWS secret key ID
+        AWS_SECRET_ID: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        # AWS region of the Lambda
+        AWS_REGION: us-east-2 
