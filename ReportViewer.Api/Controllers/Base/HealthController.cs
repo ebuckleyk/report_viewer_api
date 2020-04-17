@@ -28,7 +28,7 @@ namespace ReportViewer.Api.Controllers.Base
                 try
                 {
                     await _service.CheckDbConnection();
-                    return Ok();
+                    return Ok("Health Check OK!!");
                 }
                 catch (Exception ex)
                 {
