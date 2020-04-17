@@ -47,6 +47,7 @@ namespace ReportViewer.Api
             services.AddTransient<IOrganizationRepository, OrganizationRepository>();
             services.AddTransient<IReportService, ReportService>();
             services.AddTransient<IOrganizationService, OrganizationService>();
+            services.AddTransient<IHealthService, HealthService>();
 
             // Add S3 to the ASP.NET Core dependency injection framework.
             services.AddAWSService<Amazon.S3.IAmazonS3>();

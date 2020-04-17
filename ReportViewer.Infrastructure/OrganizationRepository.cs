@@ -6,35 +6,60 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Dapper;
+using Microsoft.Extensions.Logging;
 
 namespace ReportViewer.Infrastructure
 {
     public class OrganizationRepository : IOrganizationRepository
     {
         private readonly IDataAccess _dataAccess;
-        public OrganizationRepository(IDataAccess dataAccess)
+        private readonly ILogger<OrganizationRepository> _logger;
+        public OrganizationRepository(ILogger<OrganizationRepository> logger, IDataAccess dataAccess)
         {
             _dataAccess = dataAccess;
+            _logger = logger;
         }
 
         public async Task<IReadOnlyCollection<Organization>> GetOrganizationsAsync()
         {
-            var ret = await _dataAccess.ExecuteCommandAsync(x =>
+            using (_logger.BeginScope("----- GetOrganizationsAsync -----"))
             {
-                return x.Query<Organization>(GET_ALL);
-            });
+                try
+                {
+                    var ret = await _dataAccess.ExecuteCommandAsync(x =>
+                    {
+                        return x.Query<Organization>(GET_ALL);
+                    });
 
-            return ret.AsList().AsReadOnly();
+                    return ret.AsList().AsReadOnly();
+                }
+                catch(Exception ex)
+                {
+                    _logger.LogError(ex.Message);
+                    throw ex;
+                }
+            }
         }
 
         public async Task<Organization> GetOrganizationAsync(string ownerSub)
         {
-            var ret = await _dataAccess.ExecuteCommandAsync(x =>
+            using (_logger.BeginScope("----- GetOrganizationAsync {@ownerSub} -----", ownerSub))
             {
-                return x.QuerySingleOrDefault<Organization>(GET_ALL_BY_OWNER, new { OwnerSub = ownerSub });
-            });
+                try
+                {
+                    var ret = await _dataAccess.ExecuteCommandAsync(x =>
+                    {
+                        return x.QuerySingleOrDefault<Organization>(GET_ALL_BY_OWNER, new { OwnerSub = ownerSub });
+                    });
 
-            return ret;
+                    return ret;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message);
+                    throw ex;
+                }
+            }
         }
 
         public async Task<Organization> CreateOrganizationAsync(Organization organization)

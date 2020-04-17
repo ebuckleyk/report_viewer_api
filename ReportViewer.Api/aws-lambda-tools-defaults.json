@@ -5,11 +5,11 @@
     "dotnet lambda help",
     "All the command line options for the Lambda command can be specified in this file."
   ],
-  "profile": "",
-  "region": "",
+  "profile": "default",
+  "region": "us-east-1",
   "configuration": "Release",
   "framework": "netcoreapp3.1",
   "s3-prefix": "ReportViewer.Api/",
   "template": "serverless.template",
-  "template-parameters": "ShouldCreateBucket=true;BucketName="
+  "template-parameters": "ShouldCreateBucket=false;BucketName=report-viewer-tet"
 }
